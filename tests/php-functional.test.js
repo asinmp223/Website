@@ -57,7 +57,7 @@ function testInvalidSecretDeniesAccess() {
   assert(html.includes("Access denied"), "Invalid secret should deny access");
 }
 
-function testFirstNameIsEscaped() {
+function testXssPayloadInFirstNameIsRejected() {
   const html = renderPassAccept(
     {
       pws: "Th15_15_5TR0n6",
@@ -67,14 +67,13 @@ function testFirstNameIsEscaped() {
     "POST"
   );
 
-  assert(!html.includes("<script>alert(1)</script>"), "Raw script tag should not be reflected back");
-  assert(html.includes("&lt;script&gt;alert(1)&lt;/script&gt;"), "Escaped output should be rendered in HTML");
+  assert(html.includes("Access denied"), "XSS payload should be rejected by server-side validation");
 }
 
 function run() {
   testValidRequestShowsWelcome();
   testInvalidSecretDeniesAccess();
-  testFirstNameIsEscaped();
+  testXssPayloadInFirstNameIsRejected();
   console.log("PHP functional tests passed.");
 }
 

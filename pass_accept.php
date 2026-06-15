@@ -23,14 +23,33 @@
       <div class="col-12 col-md-8 col-lg-6 mx-auto">
           <div style="background-color: rgb(255,255,255,0.4)" class="p-3 shadow">
             <?php
-                                $password = $_POST["pws"] ?? "";
-                                $secret = $_POST["srt"] ?? "";
-                                $firstName = trim($_POST["fName"] ?? "");
+                                header("X-Content-Type-Options: nosniff");
+                                header("X-Frame-Options: DENY");
+                                header("Referrer-Policy: no-referrer");
+                                header("Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'");
 
-                                $isValidRequest = $_SERVER["REQUEST_METHOD"] === "POST"
-                                    && $password === base64_decode("VGgxNV8xNV81VFIwbjY")
-                                    && $secret === "1352"
-                                    && $firstName !== "";
+                                function normalize_input($value) {
+                                    if (!is_string($value)) {
+                                        return "";
+                                    }
+
+                                    return trim($value);
+                                }
+
+                                $password = normalize_input($_POST["pws"] ?? "");
+                                $secret = normalize_input($_POST["srt"] ?? "");
+                                $firstName = normalize_input($_POST["fName"] ?? "");
+
+                                $expectedPassword = base64_decode("VGgxNV8xNV81VFIwbjY", true);
+                                $isValidMethod = $_SERVER["REQUEST_METHOD"] === "POST";
+                                $isValidPassword = is_string($expectedPassword) && hash_equals($expectedPassword, $password);
+                                $isValidSecret = preg_match('/^\d{4}$/', $secret) === 1 && hash_equals("1352", $secret);
+                                $isValidFirstName = preg_match('/^[\p{L}][\p{L}\s\'\-]{0,49}$/u', $firstName) === 1;
+
+                                $isValidRequest = $isValidMethod
+                                    && $isValidPassword
+                                    && $isValidSecret
+                                    && $isValidFirstName;
 
                                 if ($isValidRequest) {
                                     echo '<h3 class="text-success">Welcome, ' . htmlspecialchars($firstName, ENT_QUOTES, "UTF-8") . '</h3>';
@@ -84,6 +103,12 @@
                                         A1();
                                     </script>';
                                 } else {
+                                    if (!$isValidMethod) {
+                                        http_response_code(405);
+                                    } else {
+                                        http_response_code(400);
+                                    }
+
                                     echo '<h3 class="text-danger">Access denied</h3>';
                                     echo '<p>Required values were not provided or invalid.</p>';
                                     echo '<a href="pass_form.html" class="btn btn-primary btn-sm">Go back to form</a>';
