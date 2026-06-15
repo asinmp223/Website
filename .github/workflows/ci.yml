@@ -28,6 +28,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Dependency review (PR)
+        if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@v4
+
       - name: Build project
         run: npm run build
 
@@ -59,3 +63,31 @@ jobs:
 
       - name: Run PHP functional tests
         run: npm run test:functional
+
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Dependency scanning (npm audit)
+        run: npm run security:deps
+
+      - name: SAST scanning (Semgrep)
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/javascript
+            p/php
+          generateSarif: "1"
+        continue-on-error: false

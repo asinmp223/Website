@@ -7,6 +7,7 @@
         "build": "node_modules/.bin/gulp build",
         "lint:js": "npx eslint@8.57.0 --config .eslintrc.ci.json \"script.js\" \"js/*.js\" --ignore-pattern \"*.min.js\"",
         "lint:html": "npx htmlhint@1.4.1 \"*.html\"",
+        "security:deps": "npm audit --omit=dev --audit-level=high",
         "test:smoke": "node tests/smoke.test.js",
         "test:unit": "node tests/js-unit.test.js",
         "test:functional": "node tests/php-functional.test.js",
@@ -38,7 +39,7 @@
     "dependencies": {
         "@fortawesome/fontawesome-free": "5.9.0",
         "bootstrap": "4.3.1",
-        "jquery": "3.4.1"
+        "jquery": "3.7.1"
     },
     "devDependencies": {
         "browser-sync": "2.26.7",
