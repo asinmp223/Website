@@ -7,7 +7,10 @@
         "build": "node_modules/.bin/gulp build",
         "lint:js": "npx eslint@8.57.0 --config .eslintrc.ci.json \"script.js\" \"js/*.js\" --ignore-pattern \"*.min.js\"",
         "lint:html": "npx htmlhint@1.4.1 \"*.html\"",
-        "test": "node tests/smoke.test.js"
+        "test:smoke": "node tests/smoke.test.js",
+        "test:unit": "node tests/js-unit.test.js",
+        "test:functional": "node tests/php-functional.test.js",
+        "test": "npm run test:smoke && npm run test:unit && npm run test:functional"
     },
     "description": "Clean Blog is a Medium inspired blog theme for Bootstrap.",
     "keywords": [
